@@ -78,9 +78,9 @@ def loadData(args):
     # dataSet = scale(dataSet)
 
     #层归一化
-    # dataSet_mean = dataSet.mean(axis=-1)[:, None]
-    # dataSet_std = dataSet.std(axis=-1)[:, None]
-    # dataSet = (dataSet - dataSet_mean) / (dataSet_std + 1e-5)
+    dataSet_mean = dataSet.mean(axis=-1)[:, None]
+    dataSet_std = dataSet.std(axis=-1)[:, None]
+    dataSet = (dataSet - dataSet_mean) / (dataSet_std + 1e-5)
 
     all_data = np.hstack((dataSet, labelSet))
     shuffle = np.random.permutation(all_data.shape[0])

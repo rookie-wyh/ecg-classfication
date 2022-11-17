@@ -34,7 +34,7 @@ def main(args):
 
     model = create_model(args.model, args.hidden_size, args.classes_num).to(device)
 
-    save_path, record_path = create_logs(args, model)
+    save_path = create_logs(args, model)
 
     train_dataset = MITDataSet(filepath="preprocessing/train.txt")
     val_dataset = MITDataSet(filepath="preprocessing/val.txt")
@@ -49,7 +49,7 @@ def main(args):
     best_acc = 0
 
     if args.checkpoint:
-        start_epoch, best_acc = load_model(args.checkpoint, optimizer, model, device, record_path)
+        start_epoch, best_acc = load_model(args.checkpoint, optimizer, model, device, save_path)
 
     train_loss_list = []
     val_loss_list = []
@@ -71,16 +71,16 @@ def main(args):
         val_loss_list.append(val_loss)
         val_acc_list.append(val_acc)
 
-        train_record(epoch, epochs, train_loss, train_acc, val_loss, val_acc, end_time - start_time, record_path)
+        train_record(epoch, epochs, train_loss, train_acc, val_loss, val_acc, end_time - start_time, save_path)
 
         if epoch % args.save_ckpt_freq == 0 or epoch == epochs:
-            save_model(args, epoch, model, optimizer, val_acc, train_loss, best_acc, save_path, record_path)
+            save_model(args, epoch, model, optimizer, val_acc, train_loss, best_acc, save_path)
 
         if val_acc > best_acc:
-            save_model(args, epoch, model, optimizer, val_acc, train_loss, best_acc, save_path, record_path, best_model=True)
+            save_model(args, epoch, model, optimizer, val_acc, train_loss, best_acc, save_path, best_model=True)
             best_acc = val_acc
 
-    plot_history(train_loss_list, train_acc_list, val_loss_list, val_acc_list, epochs, record_path)
+    plot_history(train_loss_list, train_acc_list, val_loss_list, val_acc_list, epochs, save_path)
 
 if __name__ == '__main__':
 
