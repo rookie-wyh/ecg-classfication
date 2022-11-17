@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import torch
 import time
 import os
@@ -6,7 +7,7 @@ from models import RNN, CNN, GRU, LSTM, MLP
 
 def save_model(args, epoch, model, optimizer, val_acc, train_loss, best_acc, save_path, record_path, best_model=False):
 
-    if best_model:
+    if not best_model:
         filename = "checkpoint_epoch_{}_acc_{}.pth".format(epoch, val_acc)
         mode = "checkpoint"
     else:
@@ -68,13 +69,33 @@ def create_model(model, hidden_size=64, classes_num=5):
     if model == "cnn":
         model_ = CNN(classes_num)
     elif model == "rnn":
-        model_ = RNN(hidden_size=64, classes_num=5)
+        model_ = RNN(hidden_size=hidden_size, classes_num=classes_num)
     elif model == "lstm":
-        model_ = LSTM(hidden_size=64, classes_num=5)
+        model_ = LSTM(hidden_size=hidden_size, classes_num=classes_num)
     elif model == "gru":
-        model_ = GRU(hidden_size=64, classes_num=5)
+        model_ = GRU(hidden_size=hidden_size, classes_num=classes_num)
     elif model == "mlp":
-        model_ = MLP(classes_num=5)
+        model_ = MLP(classes_num=classes_num)
     else:
         assert "input model not exists, the name must in [cnn, rnn, lstm, gru, mlp]"
     return model_
+
+def plot_history(train_loss_list, train_acc_list, val_loss_list, val_acc_list, epochs, record_path):
+    plt.plot([str(i + 1) for i in range(epochs)], train_loss_list, color="blue", label="train_loss")
+    plt.plot([str(i + 1) for i in range(epochs)], val_loss_list, color="orange", label="val_loss")
+    plt.xlabel("epoch")
+    plt.ylabel("loss")
+    plt.title("loss")
+    plt.legend()
+    #注意顺序
+    plt.savefig(os.path.join(record_path, "loss.png"))
+    plt.show()
+
+    plt.plot([str(i + 1) for i in range(epochs)], train_acc_list, color="blue", label="train_acc")
+    plt.plot([str(i + 1) for i in range(epochs)], val_acc_list, color="orange", label="val_acc")
+    plt.xlabel("epoch")
+    plt.ylabel("acc")
+    plt.title("accuary")
+    plt.legend()
+    plt.savefig(os.path.join(record_path, "acc.png"))
+    plt.show()

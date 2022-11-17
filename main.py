@@ -6,7 +6,7 @@ import time
 
 from datasets import MITDataSet
 from engine import train_one_epoch, evaluate
-from utils import save_model, train_record, load_model, create_logs, create_model
+from utils import save_model, train_record, load_model, create_logs, create_model, plot_history
 
 def get_args_parser():
 
@@ -51,13 +51,25 @@ def main(args):
     if args.checkpoint:
         start_epoch, best_acc = load_model(args.checkpoint, optimizer, model, device, record_path)
 
+    train_loss_list = []
+    val_loss_list = []
+    train_acc_list = []
+    val_acc_list = []
+
     for epoch in range(start_epoch, epochs + 1):
 
         start_time = time.time()
-        train_loss, train_acc = train_one_epoch(model, criterion, train_dataloader, optimizer, lr_scheduler, epoch,
+        train_loss, train_acc = train_one_epoch(model, criterion, train_dataloader, optimizer, epoch,
                                                 epochs, device)
         val_loss, val_acc = evaluate(model, criterion, val_dataloader, epoch, epochs, device)
         end_time = time.time()
+
+        lr_scheduler.step(val_loss)
+
+        train_loss_list.append(train_loss)
+        train_acc_list.append(train_acc)
+        val_loss_list.append(val_loss)
+        val_acc_list.append(val_acc)
 
         train_record(epoch, epochs, train_loss, train_acc, val_loss, val_acc, end_time - start_time, record_path)
 
@@ -66,10 +78,12 @@ def main(args):
 
         if val_acc > best_acc:
             save_model(args, epoch, model, optimizer, val_acc, train_loss, best_acc, save_path, record_path, best_model=True)
+            best_acc = val_acc
+
+    plot_history(train_loss_list, train_acc_list, val_loss_list, val_acc_list, epochs, record_path)
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(parents=[get_args_parser()])
     args = parser.parse_args()
-
     main(args)

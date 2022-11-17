@@ -3,7 +3,7 @@ from tqdm import tqdm
 import sys
 
 
-def train_one_epoch(model, criterion, dataloader, optimizer, lr_scheduler, epoch, epochs, device):
+def train_one_epoch(model, criterion, dataloader, optimizer, epoch, epochs, device):
     model.train()
     accu_corrects = torch.zeros(1).to(device)
     accu_loss = torch.zeros(1).to(device)
@@ -17,9 +17,11 @@ def train_one_epoch(model, criterion, dataloader, optimizer, lr_scheduler, epoch
         pred = model(seqs)
         pred_classes = torch.argmax(pred, dim=1)
         accu_corrects += torch.sum(pred_classes == labels)
+
         loss = criterion(pred, labels)
         loss.backward()
         accu_loss += loss.item()
+
         dataloader.desc = "[train epoch {} / {}] loss: {:.3f}, acc: {:.3f}, lr: {:.5f}".format(
             epoch,
             epochs,
@@ -33,7 +35,7 @@ def train_one_epoch(model, criterion, dataloader, optimizer, lr_scheduler, epoch
             sys.exit(1)
 
         optimizer.step()
-    lr_scheduler.step(accu_loss.item() / (step + 1))
+
 
     return accu_loss.item() / (step + 1), accu_corrects.item() / sample_num
 

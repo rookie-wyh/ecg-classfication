@@ -24,7 +24,7 @@ def denoise(data):
 
 def getDataSet(number, X_data, Y_data, args):
 
-    assert not os.path.exists(args.data_path), "data_path '{}' not exists".format(args.data_path)
+    assert os.path.exists(args.data_path), "data_path '{}' not exists".format(args.data_path)
     cgClassSet = ['N', 'A', 'V', 'L', 'R']
     index_to_class = {}
     for i in range(len(cgClassSet)):
@@ -72,6 +72,15 @@ def loadData(args):
     labelSet = np.array(labelSet).reshape((-1, 1))
     print(dataSet.shape)
     print(labelSet.shape)
+
+    #标准化
+    # from sklearn.preprocessing import scale
+    # dataSet = scale(dataSet)
+
+    #层归一化
+    # dataSet_mean = dataSet.mean(axis=-1)[:, None]
+    # dataSet_std = dataSet.std(axis=-1)[:, None]
+    # dataSet = (dataSet - dataSet_mean) / (dataSet_std + 1e-5)
 
     all_data = np.hstack((dataSet, labelSet))
     shuffle = np.random.permutation(all_data.shape[0])
